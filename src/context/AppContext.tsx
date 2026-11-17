@@ -80,8 +80,9 @@ function redutor(estado: Estado, acao: Acao): Estado {
         sessao: acao.sessao,
         gastos: acao.gastos,
         preferencias: acao.preferencias,
-        cotacao: acao.cotacao,
-        origemCotacao: acao.cotacao ? 'cache' : null,
+        // Se a API já respondeu enquanto os dados eram lidos, mantém a cotação nova.
+        cotacao: estado.cotacao ?? acao.cotacao,
+        origemCotacao: estado.cotacao ? estado.origemCotacao : acao.cotacao ? 'cache' : null,
       };
     case 'SESSAO_ABERTA':
       return { ...estado, sessao: acao.sessao, desbloqueado: true };
@@ -170,6 +171,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  /** Busca a cotação só se a última busca bem-sucedida já passou do intervalo. */
+  const atualizarCotacaoSeVelha = useCallback(() => {
+    if (Date.now() - ultimaBusca.current > INTERVALO_COTACAO_MS) atualizarCotacao();
+  }, [atualizarCotacao]);
+
   // Montagem: carrega tudo o que está salvo no aparelho e busca a cotação.
   useEffect(() => {
     let montado = true;
@@ -182,22 +188,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ]);
       if (!montado) return;
       dispatch({ tipo: 'INICIADO', sessao, gastos, preferencias, cotacao });
-      atualizarCotacao();
+      atualizarCotacaoSeVelha();
     })();
     return () => {
       montado = false;
     };
-  }, [atualizarCotacao]);
+  }, [atualizarCotacaoSeVelha]);
 
   // Ciclo de vida do app: ao voltar para o primeiro plano, renova a cotação se estiver velha.
   useEffect(() => {
     const inscricao = AppState.addEventListener('change', (situacao) => {
-      if (situacao === 'active' && Date.now() - ultimaBusca.current > INTERVALO_COTACAO_MS) {
-        atualizarCotacao();
-      }
+      if (situacao === 'active') atualizarCotacaoSeVelha();
     });
     return () => inscricao.remove();
-  }, [atualizarCotacao]);
+  }, [atualizarCotacaoSeVelha]);
 
   // useMemo: só recalcula o total quando a lista de gastos muda.
   const totalDoMes = useMemo(
