@@ -2,6 +2,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import Botao from '../components/Botao';
 import BotaoFlutuante from '../components/BotaoFlutuante';
 import CartaoCotacao from '../components/CartaoCotacao';
 import CartaoOrcamento from '../components/CartaoOrcamento';
@@ -9,7 +10,7 @@ import ItemGasto from '../components/ItemGasto';
 import { useApp } from '../context/AppContext';
 import { cores, espaco, raio } from '../theme';
 import { Gasto, RotasPilha } from '../types';
-import { mesmoMes, nomeDoMes } from '../utils/formato';
+import { formatarMoeda, mesmoMes, nomeDoMes } from '../utils/formato';
 
 const QUANTIDADE_RECENTES = 4;
 
@@ -46,6 +47,13 @@ export default function Resumo() {
     [gastos],
   );
 
+  function abrirSimulador() {
+    const sobra = preferencias.orcamento > 0 ? orcamentoDoMes.saldo : 0;
+    navigation.navigate('Simulador', {
+      aporteSugerido: sobra > 0 ? Math.floor(sobra) : undefined,
+    });
+  }
+
   const abrirDetalhe = useCallback(
     (gasto: Gasto) => navigation.navigate('DetalheGasto', { id: gasto.id }),
     [navigation],
@@ -64,6 +72,16 @@ export default function Resumo() {
           limite={preferencias.orcamento}
           orcamento={orcamentoDoMes}
         />
+
+        <View style={styles.convite}>
+          <Text style={styles.conviteTitulo}>E se você investisse?</Text>
+          <Text style={styles.conviteTexto}>
+            {orcamentoDoMes.saldo > 0 && preferencias.orcamento > 0
+              ? `Sobram ${formatarMoeda(orcamentoDoMes.saldo)} no orçamento deste mês. Veja quanto isso renderia.`
+              : 'Compare poupança, Tesouro Selic e CDB com a taxa Selic de hoje.'}
+          </Text>
+          <Botao titulo="Simular investimento" variante="contorno" onPress={abrirSimulador} />
+        </View>
 
         <CartaoCotacao
           cotacao={cotacao}
@@ -109,4 +127,12 @@ const styles = StyleSheet.create({
     borderColor: cores.linha,
   },
   vazio: { fontSize: 14, color: cores.textoSuave, lineHeight: 20 },
+  convite: {
+    backgroundColor: cores.primariaClara,
+    borderRadius: raio.g,
+    padding: espaco.g,
+    gap: espaco.pp,
+  },
+  conviteTitulo: { fontSize: 16, fontWeight: '700', color: cores.texto },
+  conviteTexto: { fontSize: 14, color: cores.texto, lineHeight: 20 },
 });
