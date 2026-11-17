@@ -1,13 +1,14 @@
 {
   "expo": {
-    "name": "bolsocerto",
+    "name": "BolsoCerto",
     "slug": "bolsocerto",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "br.com.bolsocerto.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -16,10 +17,16 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "br.com.bolsocerto.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-sqlite",
+      "expo-secure-store",
+      "expo-notifications"
+    ]
   }
 }
