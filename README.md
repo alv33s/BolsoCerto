@@ -26,7 +26,9 @@ npx expo start
 
 Leia o QR Code com o Expo Go (Android) ou com a câmera (iOS). O celular e o computador precisam estar na mesma rede Wi-Fi.
 
-Teste as notificações em um **celular de verdade**: emuladores e simuladores nem sempre as exibem. No Expo Go para Android aparecem dois avisos (`WARN`) sobre notificações remotas (push) e sobre o Expo Go; eles podem ser ignorados, porque o app usa apenas notificações locais. O aviso `[notificações] Canal próprio indisponível` também é esperado no Expo Go: o app usa o canal padrão e as notificações continuam funcionando.
+Teste as notificações em um **celular de verdade**: emuladores e simuladores nem sempre as exibem. No Expo Go para Android aparecem dois avisos (`WARN`) sobre notificações remotas (push) e sobre o Expo Go; eles podem ser ignorados, porque o app usa apenas notificações locais. O aviso `[notificações] Canal próprio indisponível` também é esperado no Expo Go: o app usa o canal padrão.
+
+**Se a notificação não aparecer no Expo Go (Android 13 ou mais novo):** o Expo Go não deixa o app criar o canal de notificação, e sem ele o Android pode não mostrar o pedido de permissão. Libere manualmente: **Configurações do celular → Apps → Expo Go → Notificações → Permitir**. O alerta do app tem um botão **Abrir ajustes** que leva até lá. Depois volte ao app e toque em **Enviar notificação de teste** na aba Metas.
 
 Outros comandos:
 
@@ -101,21 +103,17 @@ bolsocerto/
 4. Ao salvar um gasto em dólar ou euro, o valor em reais é gravado com a cotação daquele momento, então o histórico não muda quando a cotação variar.
 5. Sem internet, o app usa a última cotação salva e avisa o usuário. Gastos em reais funcionam sempre.
 
-## Web service usado
+## Web services usados
 
-Principal: [AwesomeAPI – API de Cotações](https://docs.awesomeapi.com.br/api-de-moedas), gratuita e sem chave:
+O app tenta as fontes abaixo, nesta ordem, até uma responder. Todas são gratuitas e sem chave.
 
-```
-GET https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL
-```
+| Ordem | Fonte | Endereço |
+|---|---|---|
+| 1 | [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas) | `https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL` |
+| 2 | [ExchangeRate-API](https://www.exchangerate-api.com/docs/free) | `https://open.er-api.com/v6/latest/BRL` |
+| 3 | [Frankfurter](https://frankfurter.dev) | `https://api.frankfurter.dev/v1/latest?base=BRL&symbols=USD,EUR` |
 
-Reserva: [Frankfurter](https://frankfurter.dev), usada quando a AwesomeAPI não responde:
-
-```
-GET https://api.frankfurter.app/latest?from=BRL&to=USD,EUR
-```
-
-Se nenhuma das duas responder, o app usa a última cotação salva no aparelho.
+Se nenhuma responder, o app usa a última cotação salva no aparelho. O terminal mostra qual fonte respondeu (`[cotação] Cotação obtida na ...`). A AwesomeAPI costuma responder **429** (limite de requisições) quando usada sem chave; nesse caso a próxima fonte assume.
 
 ## Limitações conhecidas
 
