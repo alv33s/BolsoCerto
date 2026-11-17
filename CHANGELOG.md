@@ -2,6 +2,10 @@
 
 Todas as mudanças de cada versão do BolsoCerto.
 
+## 1.0.4
+
+- Corrige a busca dupla da cotação ao abrir o app, que gastava uma requisição a mais e mostrava por um instante o aviso de sem conexão.
+
 ## 1.0.3
 
 - A cotação passa a ter três fontes, tentadas em ordem: AwesomeAPI, ExchangeRate-API e Frankfurter. Corrige a falha quando a AwesomeAPI responde 429 (limite de requisições).
