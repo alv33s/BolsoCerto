@@ -4,9 +4,8 @@
 //   2. ExchangeRate-API  – https://www.exchangerate-api.com/docs/free
 //   3. Frankfurter       – https://frankfurter.dev
 import { Cotacao, OrigemCotacao } from '../types';
+import { buscarJson } from './http';
 import { lerCotacaoSalva, salvarCotacao } from './preferencias';
-
-const TEMPO_LIMITE_MS = 8000;
 
 // Models das respostas de cada API.
 type RespostaAwesome = {
@@ -65,35 +64,6 @@ const FONTES: FonteDeCotacao[] = [
     },
   },
 ];
-
-/** Faz um GET com tempo limite e devolve o JSON. Lança erro com uma mensagem legível. */
-async function buscarJson(url: string): Promise<unknown> {
-  // Cancela a requisição se o servidor demorar demais.
-  const controle = new AbortController();
-  const temporizador = setTimeout(() => controle.abort(), TEMPO_LIMITE_MS);
-
-  try {
-    const resposta = await fetch(url, {
-      method: 'GET',
-      headers: { Accept: 'application/json' },
-      signal: controle.signal,
-    });
-
-    // Erros do servidor (ex.: 404, 429 = limite de requisições, 500).
-    if (!resposta.ok) {
-      throw new Error(`O serviço respondeu com erro ${resposta.status}.`);
-    }
-
-    return await resposta.json();
-  } catch (erro) {
-    if (erro instanceof Error && erro.name === 'AbortError') {
-      throw new Error('O serviço demorou demais para responder.');
-    }
-    throw erro;
-  } finally {
-    clearTimeout(temporizador);
-  }
-}
 
 async function buscarNaFonte(fonte: FonteDeCotacao): Promise<Cotacao> {
   const { usd, eur } = fonte.converter(await buscarJson(fonte.url));
