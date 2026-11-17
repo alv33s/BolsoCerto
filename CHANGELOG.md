@@ -2,6 +2,10 @@
 
 Todas as mudanças de cada versão do BolsoCerto.
 
+## 1.0.1
+
+- Corrige a busca de cotação: se o aparelho não conseguir gravar a cotação nova, o app agora continua usando o valor que acabou de vir da API, em vez de voltar para a cotação antiga.
+
 ## 1.0.0
 
 Primeira versão entregue.
