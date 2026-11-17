@@ -8,10 +8,9 @@ O usuário define um orçamento mensal, registra cada gasto em real, dólar ou e
 
 | Nome completo | Matrícula | O que fez |
 |---|---|---|
-| _preencher_ | _preencher_ | _preencher_ |
-| _preencher_ | _preencher_ | _preencher_ |
-| _preencher_ | _preencher_ | _preencher_ |
-| _preencher_ | _preencher_ | _preencher_ |
+| _Felipe Alves Muniz_ | _Uc23101331_ | _Back-end_ |
+| _Enzo Freitas_ | _UC23102171_ | _Front-end_ |
+
 
 ## Como rodar
 
