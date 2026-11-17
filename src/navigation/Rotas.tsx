@@ -11,6 +11,7 @@ import Login from '../screens/Login';
 import Metas from '../screens/Metas';
 import NovoGasto from '../screens/NovoGasto';
 import Resumo from '../screens/Resumo';
+import Simulador from '../screens/Simulador';
 import { ouvirToqueEmNotificacao } from '../services/notificacoes';
 import { cores } from '../theme';
 import { RotasAbas, RotasPilha } from '../types';
@@ -104,6 +105,11 @@ export default function Rotas() {
               name="NovoGasto"
               component={NovoGasto}
               options={{ title: 'Novo gasto', presentation: 'modal' }}
+            />
+            <Pilha.Screen
+              name="Simulador"
+              component={Simulador}
+              options={{ title: 'Simular investimento' }}
             />
           </>
         ) : (
