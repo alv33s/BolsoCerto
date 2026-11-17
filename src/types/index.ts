@@ -61,6 +61,8 @@ export type RotasPilha = {
   Abas: undefined;
   DetalheGasto: { id: number };
   NovoGasto: undefined;
+  /** aporteSugerido: sobra do orçamento do mês, para começar a simulação. */
+  Simulador: { aporteSugerido?: number } | undefined;
 };
 
 export type RotasAbas = {
