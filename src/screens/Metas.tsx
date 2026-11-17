@@ -1,6 +1,6 @@
 import Slider from '@react-native-community/slider';
 import { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Linking, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import Botao from '../components/Botao';
 import CampoTexto from '../components/CampoTexto';
 import SeletorOpcoes from '../components/SeletorOpcoes';
@@ -88,9 +88,19 @@ export default function Metas() {
   }
 
   function avisarPermissaoNegada() {
+    // No Expo Go, quem recebe a permissão é o próprio Expo Go; os ajustes abertos são os dele.
     Alert.alert(
       'Notificações desativadas',
-      'Para receber avisos, permita as notificações do BolsoCerto nos ajustes do aparelho.',
+      'Para receber avisos, ative as notificações nos ajustes do aparelho e volte para o app.',
+      [
+        { text: 'Agora não', style: 'cancel' },
+        {
+          text: 'Abrir ajustes',
+          onPress: () => {
+            Linking.openSettings().catch(() => undefined);
+          },
+        },
+      ],
     );
   }
 

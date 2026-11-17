@@ -47,8 +47,14 @@ export async function pedirPermissao(): Promise<boolean> {
     await prepararCanal();
     const atual = await Notifications.getPermissionsAsync();
     if (atual.granted) return true;
-    if (!atual.canAskAgain) return false;
+    if (!atual.canAskAgain) {
+      console.warn('[notificações] Permissão negada e o aparelho não deixa perguntar de novo.');
+      return false;
+    }
     const resposta = await Notifications.requestPermissionsAsync();
+    if (!resposta.granted) {
+      console.warn(`[notificações] Permissão não concedida (status: ${resposta.status}).`);
+    }
     return resposta.granted;
   } catch (erro) {
     console.warn('[notificações] Não foi possível verificar a permissão.', erro);
