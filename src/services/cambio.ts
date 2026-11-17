@@ -55,13 +55,16 @@ export async function buscarCotacaoNaApi(): Promise<Cotacao> {
  * Sem internet (ou com a API fora do ar), usa a última cotação salva.
  */
 export async function obterCotacao(): Promise<{ cotacao: Cotacao; origem: OrigemCotacao }> {
+  let cotacao: Cotacao;
   try {
-    const cotacao = await buscarCotacaoNaApi();
-    await salvarCotacao(cotacao);
-    return { cotacao, origem: 'api' };
+    cotacao = await buscarCotacaoNaApi();
   } catch (erro) {
-    const salva = await lerCotacaoSalva();
+    const salva = await lerCotacaoSalva().catch(() => null);
     if (salva) return { cotacao: salva, origem: 'cache' };
     throw erro;
   }
+
+  // Se não der para gravar no aparelho, a cotação recém-buscada continua valendo.
+  await salvarCotacao(cotacao).catch(() => undefined);
+  return { cotacao, origem: 'api' };
 }
