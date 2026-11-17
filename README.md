@@ -26,7 +26,7 @@ npx expo start
 
 Leia o QR Code com o Expo Go (Android) ou com a câmera (iOS). O celular e o computador precisam estar na mesma rede Wi-Fi.
 
-Teste as notificações em um **celular de verdade**: emuladores e simuladores nem sempre as exibem. No Expo Go para Android aparece um aviso sobre notificações remotas (push); ele pode ser ignorado, porque o app usa apenas notificações locais.
+Teste as notificações em um **celular de verdade**: emuladores e simuladores nem sempre as exibem. No Expo Go para Android aparecem dois avisos (`WARN`) sobre notificações remotas (push) e sobre o Expo Go; eles podem ser ignorados, porque o app usa apenas notificações locais. O aviso `[notificações] Canal próprio indisponível` também é esperado no Expo Go: o app usa o canal padrão e as notificações continuam funcionando.
 
 Outros comandos:
 
@@ -52,7 +52,7 @@ São 6 telas interativas (o mínimo pedido é 4).
 | Exigência | Como o app atende | Onde está |
 |---|---|---|
 | Notificação | Alerta ao cruzar 80% e 100% do orçamento, lembrete diário agendado, navegação ao tocar na notificação; `Alert` para confirmações | `src/services/notificacoes.ts`, `src/context/AppContext.tsx`, `src/screens/Metas.tsx` |
-| Requisição de Web Service | `fetch` (GET) na AwesomeAPI de cotações, com carregando, erro, tentar de novo e tempo limite | `src/services/cambio.ts`, `src/components/CartaoCotacao.tsx` |
+| Requisição de Web Service | `fetch` (GET) na AwesomeAPI de cotações, com API de reserva, carregando, erro, tentar de novo e tempo limite | `src/services/cambio.ts`, `src/components/CartaoCotacao.tsx` |
 | Persistência de dados | **SQLite** para os gastos, **AsyncStorage** para preferências e última cotação, **SecureStore** para nome e PIN | `src/services/banco.ts`, `preferencias.ts`, `sessao.ts` |
 | Mínimo de 4 telas interativas | 6 telas | `src/screens/` |
 | Finalidade além de ver informações | O usuário cadastra, edita, exclui, converte e controla um orçamento | todo o app |
@@ -103,11 +103,19 @@ bolsocerto/
 
 ## Web service usado
 
-[AwesomeAPI – API de Cotações](https://docs.awesomeapi.com.br/api-de-moedas), gratuita e sem chave:
+Principal: [AwesomeAPI – API de Cotações](https://docs.awesomeapi.com.br/api-de-moedas), gratuita e sem chave:
 
 ```
 GET https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL
 ```
+
+Reserva: [Frankfurter](https://frankfurter.dev), usada quando a AwesomeAPI não responde:
+
+```
+GET https://api.frankfurter.app/latest?from=BRL&to=USD,EUR
+```
+
+Se nenhuma das duas responder, o app usa a última cotação salva no aparelho.
 
 ## Limitações conhecidas
 

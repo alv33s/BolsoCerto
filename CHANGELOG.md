@@ -2,6 +2,11 @@
 
 Todas as mudanças de cada versão do BolsoCerto.
 
+## 1.0.2
+
+- Corrige o erro de notificação no Expo Go para Android: quando o aparelho recusa o canal de notificação próprio, o app passa a usar o canal padrão em vez de gerar erro.
+- A cotação passa a ter uma API de reserva (Frankfurter), usada quando a AwesomeAPI não responde.
+
 ## 1.0.1
 
 - Corrige a busca de cotação: se o aparelho não conseguir gravar a cotação nova, o app agora continua usando o valor que acabou de vir da API, em vez de voltar para a cotação antiga.

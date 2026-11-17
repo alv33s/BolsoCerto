@@ -77,11 +77,14 @@ export default function Metas() {
       avisarPermissaoNegada();
       return;
     }
-    await notificarAgora(
+    const enviou = await notificarAgora(
       'Notificações funcionando',
       `Você gastou ${formatarMoeda(totalDoMes)} neste mês.`,
       'orcamento',
     );
+    if (!enviou) {
+      Alert.alert('Notificação não enviada', 'O aparelho recusou a notificação. Tente de novo.');
+    }
   }
 
   function avisarPermissaoNegada() {
