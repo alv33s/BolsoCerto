@@ -5,12 +5,16 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useEffect, useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useApp } from '../context/AppContext';
+import Cofrinhos from '../screens/Cofrinhos';
+import DetalheCofrinho from '../screens/DetalheCofrinho';
 import DetalheGasto from '../screens/DetalheGasto';
 import Gastos from '../screens/Gastos';
 import Login from '../screens/Login';
 import Metas from '../screens/Metas';
+import NovoCofrinho from '../screens/NovoCofrinho';
 import NovoGasto from '../screens/NovoGasto';
 import Resumo from '../screens/Resumo';
+import Simulador from '../screens/Simulador';
 import { ouvirToqueEmNotificacao } from '../services/notificacoes';
 import { cores } from '../theme';
 import { RotasAbas, RotasPilha } from '../types';
@@ -25,6 +29,7 @@ type NomeDoIcone = keyof typeof Ionicons.glyphMap;
 const ICONE_DA_ABA: Record<keyof RotasAbas, NomeDoIcone> = {
   Resumo: 'home-outline',
   Gastos: 'receipt-outline',
+  Cofrinhos: 'wallet-outline',
   Metas: 'flag-outline',
 };
 
@@ -45,6 +50,7 @@ function TelasEmAbas() {
     >
       <Abas.Screen name="Resumo" component={Resumo} />
       <Abas.Screen name="Gastos" component={Gastos} />
+      <Abas.Screen name="Cofrinhos" component={Cofrinhos} />
       <Abas.Screen name="Metas" component={Metas} />
     </Abas.Navigator>
   );
@@ -104,6 +110,21 @@ export default function Rotas() {
               name="NovoGasto"
               component={NovoGasto}
               options={{ title: 'Novo gasto', presentation: 'modal' }}
+            />
+            <Pilha.Screen
+              name="Simulador"
+              component={Simulador}
+              options={{ title: 'Simular investimento' }}
+            />
+            <Pilha.Screen
+              name="DetalheCofrinho"
+              component={DetalheCofrinho}
+              options={{ title: 'Cofrinho' }}
+            />
+            <Pilha.Screen
+              name="NovoCofrinho"
+              component={NovoCofrinho}
+              options={{ title: 'Novo cofrinho', presentation: 'modal' }}
             />
           </>
         ) : (
