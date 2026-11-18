@@ -32,6 +32,11 @@ const dbPromise = (async () => {
   return db;
 })();
 
+/** Conexão com o banco, compartilhada com outros serviços (ex.: cofrinhos). */
+export function abrirBanco(): Promise<SQLite.SQLiteDatabase> {
+  return dbPromise;
+}
+
 function paraGasto(l: Linha): Gasto {
   return {
     id: l.id,

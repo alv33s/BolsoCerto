@@ -3,7 +3,7 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 
-export type TipoNotificacao = 'orcamento' | 'lembrete';
+export type TipoNotificacao = 'orcamento' | 'lembrete' | 'cofrinho';
 
 const CANAL = 'avisos';
 
@@ -120,7 +120,7 @@ export async function cancelarLembrete(id: string | null): Promise<void> {
 export function ouvirToqueEmNotificacao(aoTocar: (tipo: TipoNotificacao) => void): () => void {
   const inscricao = Notifications.addNotificationResponseReceivedListener((resposta) => {
     const tipo = resposta.notification.request.content.data?.tipo;
-    if (tipo === 'orcamento' || tipo === 'lembrete') aoTocar(tipo);
+    if (tipo === 'orcamento' || tipo === 'lembrete' || tipo === 'cofrinho') aoTocar(tipo);
   });
   return () => inscricao.remove();
 }
