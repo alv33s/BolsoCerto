@@ -120,13 +120,15 @@ Se nenhuma responder, o app usa a última cotação salva no aparelho. O termina
 
 ## Cofrinhos
 
-Cada cofrinho tem um nome e uma meta. O usuário guarda ou retira dinheiro, e o app soma as movimentações para mostrar quanto já foi juntado. O dinheiro não sai da conta de verdade: o cofrinho só registra quanto foi separado para cada objetivo.
+Cada cofrinho tem um nome e uma meta. O usuário guarda ou retira dinheiro, e o app soma as movimentações para mostrar quanto já foi juntado.
 
-- **Tabelas no SQLite:** `cofrinhos` (nome, meta, data de criação) e `movimentacoes` (valor positivo para depósito, negativo para retirada). O total de cada cofrinho vem de uma consulta com `LEFT JOIN` e `SUM` agrupado por cofrinho (`src/services/cofrinhos.ts`).
+**Ligação com o orçamento:** guardar dinheiro (ao criar o cofrinho com valor inicial ou pelo botão Guardar) lança o valor nos gastos do mês, na categoria **Cofrinho**, e ele passa a contar no total e no orçamento. Retirar lança o mesmo valor negativo, que volta para o orçamento. Os lançamentos aparecem no histórico de gastos e podem ser filtrados pela categoria Cofrinho.
+
+- **Tabelas no SQLite:** `cofrinhos` (nome, meta, data de criação) e `movimentacoes` (valor positivo para depósito, negativo para retirada, e o `gasto_id` do lançamento criado nos gastos). Aparelhos com a versão anterior recebem a coluna nova automaticamente (`ALTER TABLE`). O total de cada cofrinho vem de uma consulta com `LEFT JOIN` e `SUM` agrupado por cofrinho (`src/services/cofrinhos.ts`).
 - **Transações:** criar um cofrinho com valor inicial e excluir um cofrinho com o histórico são feitos de uma vez, ou tudo ou nada.
 - **Estado:** `src/context/CofrinhosContext.tsx` guarda a lista e é usado pelas três telas.
 - **Notificação:** ao guardar o valor que faz o cofrinho chegar na meta, o app avisa "Meta atingida!".
-- **Regras:** não dá para retirar mais do que está guardado; segurar o dedo numa movimentação permite apagá-la.
+- **Regras:** não dá para retirar mais do que está guardado; segurar o dedo numa movimentação permite apagá-la, e o lançamento dela nos gastos é apagado junto; excluir o cofrinho apaga também os lançamentos dele. Os lançamentos de cofrinho não podem ser editados pela tela de gastos, só pelo cofrinho, para os dois ficarem sempre iguais.
 
 ## Simulador de investimento
 

@@ -8,11 +8,11 @@ import ItemGasto from '../components/ItemGasto';
 import SeletorOpcoes from '../components/SeletorOpcoes';
 import { useApp } from '../context/AppContext';
 import { cores, espaco } from '../theme';
-import { CATEGORIAS, Categoria, Gasto, RotasPilha } from '../types';
+import { CATEGORIAS, CATEGORIA_COFRINHO, Categoria, Gasto, RotasPilha } from '../types';
 import { arredondar, formatarMoeda } from '../utils/formato';
 
 type Filtro = 'Todas' | Categoria;
-const FILTROS: Filtro[] = ['Todas', ...CATEGORIAS];
+const FILTROS: Filtro[] = ['Todas', ...CATEGORIAS, CATEGORIA_COFRINHO];
 
 export default function Gastos() {
   const navigation = useNavigation<NativeStackNavigationProp<RotasPilha>>();
