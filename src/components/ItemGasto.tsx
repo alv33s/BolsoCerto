@@ -13,6 +13,7 @@ export const ICONE_DA_CATEGORIA: Record<Categoria, NomeDoIcone> = {
   Contas: 'bulb-outline',
   Saúde: 'medkit-outline',
   Outros: 'pricetag-outline',
+  Cofrinho: 'wallet-outline',
 };
 
 type ItemGastoProps = {
@@ -44,7 +45,9 @@ export default function ItemGasto({ gasto, onPress }: ItemGastoProps) {
         </Text>
       </View>
 
-      <Text style={styles.valor}>{formatarMoeda(gasto.valorReais)}</Text>
+      <Text style={[styles.valor, gasto.valorReais < 0 && styles.valorDevolvido]}>
+        {formatarMoeda(gasto.valorReais)}
+      </Text>
     </Pressable>
   );
 }
@@ -73,4 +76,6 @@ const styles = StyleSheet.create({
   descricao: { fontSize: 16, fontWeight: '600', color: cores.texto },
   detalhe: { fontSize: 13, color: cores.textoSuave, marginTop: 2 },
   valor: { fontSize: 16, fontWeight: '600', color: cores.texto },
+  /** Valores negativos (ex.: retirada de cofrinho) devolvem dinheiro ao orçamento. */
+  valorDevolvido: { color: cores.primaria },
 });

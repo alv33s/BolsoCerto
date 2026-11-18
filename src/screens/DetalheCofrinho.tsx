@@ -78,15 +78,18 @@ export default function DetalheCofrinho({ route, navigation }: Props) {
   function confirmarRemocao(movimentacao: Movimentacao) {
     Alert.alert(
       'Apagar esta movimentação?',
-      `${movimentacao.valor > 0 ? 'Depósito' : 'Retirada'} de ${formatarMoeda(Math.abs(movimentacao.valor))} em ${formatarData(movimentacao.data)}.`,
+      `${movimentacao.valor > 0 ? 'Depósito' : 'Retirada'} de ${formatarMoeda(Math.abs(movimentacao.valor))} em ${formatarData(movimentacao.data)}. O lançamento dela nos gastos do mês também será apagado.`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Apagar',
           style: 'destructive',
           onPress: () => {
-            removerMovimentacao(movimentacao.id).catch(() =>
-              Alert.alert('Não foi possível apagar', 'Tente de novo em instantes.'),
+            removerMovimentacao(movimentacao).catch((e) =>
+              Alert.alert(
+                'Não foi possível apagar',
+                e instanceof Error ? e.message : 'Tente de novo em instantes.',
+              ),
             );
           },
         },
@@ -97,7 +100,7 @@ export default function DetalheCofrinho({ route, navigation }: Props) {
   function confirmarExclusao() {
     Alert.alert(
       'Excluir este cofrinho?',
-      `"${cofrinho?.nome}" e todo o histórico dele serão apagados. Não é possível desfazer.`,
+      `"${cofrinho?.nome}" e todo o histórico dele serão apagados, junto com os lançamentos dele nos gastos do mês. Não é possível desfazer.`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
@@ -161,6 +164,10 @@ export default function DetalheCofrinho({ route, navigation }: Props) {
               />
             </View>
           </View>
+          <Text style={styles.ajuda}>
+            Guardar lança o valor nos gastos do mês (categoria Cofrinho) e diminui o que sobra do
+            orçamento. Retirar devolve o valor ao orçamento.
+          </Text>
         </View>
 
         <View>
@@ -218,6 +225,7 @@ const styles = StyleSheet.create({
   },
   botoes: { flexDirection: 'row', gap: espaco.m },
   botao: { flex: 1 },
+  ajuda: { fontSize: 13, color: cores.textoSuave, lineHeight: 18, marginTop: espaco.m },
   secao: { fontSize: 16, fontWeight: '600', color: cores.texto, marginBottom: espaco.p },
   vazio: { fontSize: 14, color: cores.textoSuave, lineHeight: 20 },
   lista: { borderRadius: raio.m, borderWidth: 1, borderColor: cores.linha, overflow: 'hidden' },

@@ -109,7 +109,8 @@ export default function NovoCofrinho({ navigation }: Props) {
         />
 
         <Text style={styles.ajuda}>
-          O dinheiro não sai da sua conta: o cofrinho só anota quanto você separou para esse objetivo.
+          O valor guardado agora entra nos gastos do mês, na categoria Cofrinho, e conta no seu
+          orçamento. Se retirar depois, ele volta para o orçamento.
         </Text>
 
         <View style={styles.acoes}>

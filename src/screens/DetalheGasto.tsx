@@ -14,7 +14,7 @@ import CampoTexto from '../components/CampoTexto';
 import SeletorOpcoes from '../components/SeletorOpcoes';
 import { useApp } from '../context/AppContext';
 import { cores, espaco, raio } from '../theme';
-import { CATEGORIAS, Gasto, RotasPilha } from '../types';
+import { CATEGORIAS, CATEGORIA_COFRINHO, Gasto, RotasPilha } from '../types';
 import { arredondar, formatarData, formatarMoeda, formatarNumero, lerValor } from '../utils/formato';
 
 type Props = NativeStackScreenProps<RotasPilha, 'DetalheGasto'>;
@@ -29,6 +29,32 @@ export default function DetalheGasto({ route, navigation }: Props) {
       <View style={styles.tela}>
         <Text style={styles.ausente}>Este gasto não existe mais.</Text>
       </View>
+    );
+  }
+
+  // Lançamentos de cofrinho só mudam pelo próprio cofrinho, para os dois ficarem sempre iguais.
+  if (gasto.categoria === CATEGORIA_COFRINHO) {
+    return (
+      <ScrollView style={styles.tela} contentContainerStyle={styles.conteudo}>
+        <View style={styles.resumo}>
+          <Linha rotulo="Descrição" valor={gasto.descricao} />
+          <Linha rotulo="Data" valor={formatarData(gasto.data)} />
+          <Linha
+            rotulo={gasto.valorReais < 0 ? 'Devolvido ao orçamento' : 'Valor guardado'}
+            valor={formatarMoeda(Math.abs(gasto.valorReais))}
+            destaque
+          />
+        </View>
+        <Text style={styles.aviso}>
+          Este lançamento foi criado por um cofrinho. Para mudar ou apagar, abra o cofrinho e
+          toque e segure a movimentação no histórico.
+        </Text>
+        <Botao
+          titulo="Abrir cofrinhos"
+          variante="contorno"
+          onPress={() => navigation.navigate('Abas', { screen: 'Cofrinhos' })}
+        />
+      </ScrollView>
     );
   }
 
@@ -170,6 +196,7 @@ const styles = StyleSheet.create({
   tela: { flex: 1, backgroundColor: cores.fundo },
   conteudo: { padding: espaco.g, paddingBottom: espaco.gg * 2 },
   ausente: { padding: espaco.g, fontSize: 16, color: cores.textoSuave },
+  aviso: { fontSize: 14, color: cores.textoSuave, lineHeight: 20, marginBottom: espaco.p },
   resumo: {
     backgroundColor: cores.cartao,
     borderRadius: raio.m,

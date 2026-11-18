@@ -1,11 +1,23 @@
 // Models (tipos) usados em todo o app.
+import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type Moeda = 'BRL' | 'USD' | 'EUR';
 
-export type Categoria = 'Alimentação' | 'Transporte' | 'Lazer' | 'Contas' | 'Saúde' | 'Outros';
+export type Categoria =
+  | 'Alimentação'
+  | 'Transporte'
+  | 'Lazer'
+  | 'Contas'
+  | 'Saúde'
+  | 'Outros'
+  | 'Cofrinho';
+
+/** Categoria dos lançamentos criados pelos cofrinhos (não aparece no cadastro de gasto). */
+export const CATEGORIA_COFRINHO: Categoria = 'Cofrinho';
 
 export const MOEDAS: Moeda[] = ['BRL', 'USD', 'EUR'];
 
+/** Categorias que o usuário pode escolher ao registrar um gasto. */
 export const CATEGORIAS: Categoria[] = [
   'Alimentação',
   'Transporte',
@@ -71,12 +83,15 @@ export type Movimentacao = {
   /** Positivo quando guarda, negativo quando retira. */
   valor: number;
   data: string;
+  /** Lançamento nos gastos do mês criado junto com esta movimentação. */
+  gastoId: number | null;
 };
 
 // Rotas da navegação (Stack + Tabs + Modal).
 export type RotasPilha = {
   Login: undefined;
-  Abas: undefined;
+  /** Permite abrir uma aba específica, ex.: navigate('Abas', { screen: 'Cofrinhos' }). */
+  Abas: NavigatorScreenParams<RotasAbas> | undefined;
   DetalheGasto: { id: number };
   NovoGasto: undefined;
   /** aporteSugerido: sobra do orçamento do mês, para começar a simulação. */

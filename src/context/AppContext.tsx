@@ -133,9 +133,11 @@ type ValorDoContexto = Estado & {
   desbloquear: (pin: string) => boolean;
   bloquear: () => void;
   apagarTudo: () => Promise<void>;
-  adicionarGasto: (novo: NovoGasto) => Promise<void>;
+  /** Registra o gasto e devolve como ficou salvo (com id). */
+  adicionarGasto: (novo: NovoGasto) => Promise<Gasto>;
   editarGasto: (gasto: Gasto) => Promise<void>;
   excluirGasto: (id: number) => Promise<void>;
+  excluirGastos: (ids: number[]) => Promise<void>;
   alterarPreferencias: (mudancas: Partial<Preferencias>) => Promise<void>;
   /** Liga/desliga o lembrete diário. Devolve false se o usuário negou a permissão. */
   definirLembrete: (ligado: boolean, hora: number) => Promise<boolean>;
@@ -262,7 +264,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       // Notificação: avisa quando este gasto fez o mês cruzar 80% ou 100% do orçamento.
       const { orcamento, alertasOrcamento } = estado.preferencias;
-      if (!alertasOrcamento || orcamento <= 0 || !mesmoMes(gasto.data)) return;
+      if (!alertasOrcamento || orcamento <= 0 || !mesmoMes(gasto.data)) return gasto;
 
       const antes = new Orcamento(orcamento, totalDoMes);
       const depois = new Orcamento(orcamento, totalDoMes + gasto.valorReais);
@@ -281,6 +283,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           'orcamento',
         ).catch(() => undefined);
       }
+      return gasto;
     },
     [estado.cotacao, estado.preferencias, totalDoMes],
   );
@@ -294,6 +297,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const excluirGasto = useCallback(async (id: number) => {
     await banco.removerGasto(id);
     dispatch({ tipo: 'GASTO_REMOVIDO', id });
+  }, []);
+
+  const excluirGastos = useCallback(async (ids: number[]) => {
+    for (const id of ids) {
+      await banco.removerGasto(id);
+      dispatch({ tipo: 'GASTO_REMOVIDO', id });
+    }
   }, []);
 
   const alterarPreferencias = useCallback(async (mudancas: Partial<Preferencias>) => {
@@ -335,6 +345,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       adicionarGasto,
       editarGasto,
       excluirGasto,
+      excluirGastos,
       alterarPreferencias,
       definirLembrete,
       atualizarCotacao,
@@ -350,6 +361,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       adicionarGasto,
       editarGasto,
       excluirGasto,
+      excluirGastos,
       alterarPreferencias,
       definirLembrete,
       atualizarCotacao,
