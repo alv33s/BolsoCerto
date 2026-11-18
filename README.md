@@ -2,7 +2,7 @@
 
 Aplicativo de controle de gastos pessoais com conversão automática de moedas, feito em React Native (Expo) como trabalho final da disciplina de Programação de Aplicativos.
 
-O usuário define um orçamento mensal, registra cada gasto em real, dólar ou euro e o app converte para reais com a cotação do dia, avisa quando o orçamento está perto de estourar e lembra de registrar os gastos. Também simula quanto a sobra do orçamento renderia na poupança, no Tesouro Selic e em um CDB, com a taxa Selic do Banco Central.
+O usuário define um orçamento mensal, registra cada gasto em real, dólar ou euro e o app converte para reais com a cotação do dia, avisa quando o orçamento está perto de estourar e lembra de registrar os gastos. Também permite separar dinheiro em cofrinhos, um para cada objetivo, e simula quanto a sobra do orçamento renderia na poupança, no Tesouro Selic e em um CDB, com a taxa Selic do Banco Central.
 
 ## Integrantes
 
@@ -46,16 +46,19 @@ npm run typecheck   # confere os tipos do TypeScript
 | **Novo gasto** | Modal | Registra um gasto; em dólar ou euro, mostra a conversão antes de salvar |
 | **Detalhe do gasto** | Pilha | Edita descrição, valor e categoria, ou exclui o gasto |
 | **Simular investimento** | Pilha | Compara poupança, Tesouro Selic e CDB com a Selic atual, por valor, aporte e prazo |
+| **Cofrinhos** | Aba | Vê todos os cofrinhos, quanto já guardou em cada um e o total |
+| **Novo cofrinho** | Modal | Cria um cofrinho com nome, meta e um valor inicial opcional |
+| **Cofrinho** | Pilha | Guarda ou retira dinheiro, vê o histórico, apaga movimentações e exclui o cofrinho |
 
-São 7 telas interativas (o mínimo pedido é 4).
+São 10 telas interativas (o mínimo pedido é 4).
 
 ## Requisitos do trabalho
 
 | Exigência | Como o app atende | Onde está |
 |---|---|---|
-| Notificação | Alerta ao cruzar 80% e 100% do orçamento, lembrete diário agendado, navegação ao tocar na notificação; `Alert` para confirmações | `src/services/notificacoes.ts`, `src/context/AppContext.tsx`, `src/screens/Metas.tsx` |
+| Notificação | Alerta ao cruzar 80% e 100% do orçamento, aviso quando um cofrinho atinge a meta, lembrete diário agendado, navegação ao tocar na notificação; `Alert` para confirmações | `src/services/notificacoes.ts`, `src/context/AppContext.tsx`, `src/screens/Metas.tsx` |
 | Requisição de Web Service | `fetch` (GET) em APIs de cotação (com reservas) e na API do Banco Central (Selic), com carregando, erro, tentar de novo e tempo limite | `src/services/http.ts`, `cambio.ts`, `indicadores.ts`, `src/components/CartaoCotacao.tsx`, `src/screens/Simulador.tsx` |
-| Persistência de dados | **SQLite** para os gastos, **AsyncStorage** para preferências, última cotação e última Selic, **SecureStore** para nome e PIN | `src/services/banco.ts`, `preferencias.ts`, `sessao.ts` |
+| Persistência de dados | **SQLite** para os gastos e os cofrinhos (com `JOIN`, `SUM` e transações), **AsyncStorage** para preferências, última cotação e última Selic, **SecureStore** para nome e PIN | `src/services/banco.ts`, `cofrinhos.ts`, `preferencias.ts`, `sessao.ts` |
 | Mínimo de 4 telas interativas | 6 telas | `src/screens/` |
 | Finalidade além de ver informações | O usuário cadastra, edita, exclui, converte e controla um orçamento | todo o app |
 | Não ser app de filmes ou livros | Controle financeiro | — |
@@ -85,11 +88,11 @@ bolsocerto/
 ├── app.json                 # configuração do Expo
 └── src/
     ├── components/          # peças reutilizáveis (botão, campo, item da lista...)
-    ├── context/             # estado global (useReducer + useContext)
+    ├── context/             # estado global (useReducer + useContext) e estado dos cofrinhos
     ├── models/              # classes Orcamento e Simulador (regras de negócio)
     ├── navigation/          # pilha, abas e modal
     ├── screens/             # as telas
-    ├── services/            # banco (SQLite), preferências, sessão, câmbio, Selic, notificações
+    ├── services/            # banco e cofrinhos (SQLite), preferências, sessão, câmbio, Selic, notificações
     ├── theme/               # cores e espaçamentos
     ├── types/               # tipos e rotas
     └── utils/               # formatação de moeda e data
@@ -114,6 +117,16 @@ O app tenta as fontes abaixo, nesta ordem, até uma responder. Todas são gratui
 | 3 | [Frankfurter](https://frankfurter.dev) | `https://api.frankfurter.dev/v1/latest?base=BRL&symbols=USD,EUR` |
 
 Se nenhuma responder, o app usa a última cotação salva no aparelho. O terminal mostra qual fonte respondeu (`[cotação] Cotação obtida na ...`). A AwesomeAPI costuma responder **429** (limite de requisições) quando usada sem chave; nesse caso a próxima fonte assume.
+
+## Cofrinhos
+
+Cada cofrinho tem um nome e uma meta. O usuário guarda ou retira dinheiro, e o app soma as movimentações para mostrar quanto já foi juntado. O dinheiro não sai da conta de verdade: o cofrinho só registra quanto foi separado para cada objetivo.
+
+- **Tabelas no SQLite:** `cofrinhos` (nome, meta, data de criação) e `movimentacoes` (valor positivo para depósito, negativo para retirada). O total de cada cofrinho vem de uma consulta com `LEFT JOIN` e `SUM` agrupado por cofrinho (`src/services/cofrinhos.ts`).
+- **Transações:** criar um cofrinho com valor inicial e excluir um cofrinho com o histórico são feitos de uma vez, ou tudo ou nada.
+- **Estado:** `src/context/CofrinhosContext.tsx` guarda a lista e é usado pelas três telas.
+- **Notificação:** ao guardar o valor que faz o cofrinho chegar na meta, o app avisa "Meta atingida!".
+- **Regras:** não dá para retirar mais do que está guardado; segurar o dedo numa movimentação permite apagá-la.
 
 ## Simulador de investimento
 

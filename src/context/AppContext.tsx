@@ -13,6 +13,7 @@ import {
 import { AppState } from 'react-native';
 import { Orcamento } from '../models/Orcamento';
 import * as banco from '../services/banco';
+import { removerTodosOsCofrinhos } from '../services/cofrinhos';
 import { obterCotacao } from '../services/cambio';
 import {
   agendarLembreteDiario,
@@ -236,7 +237,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const apagarTudo = useCallback(async () => {
     await cancelarLembrete(preferenciasAtuais.current.lembreteId).catch(() => undefined);
-    await Promise.all([apagarSessao(), apagarPreferencias(), banco.removerTodosOsGastos()]);
+    await Promise.all([
+      apagarSessao(),
+      apagarPreferencias(),
+      banco.removerTodosOsGastos(),
+      removerTodosOsCofrinhos(),
+    ]);
     dispatch({ tipo: 'DADOS_APAGADOS' });
   }, []);
 

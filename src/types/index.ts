@@ -55,6 +55,24 @@ export type Sessao = {
   pin: string;
 };
 
+export type Cofrinho = {
+  id: number;
+  nome: string;
+  /** Quanto o usuário quer juntar, em reais. */
+  meta: number;
+  /** Soma de tudo que foi guardado menos o que foi retirado. */
+  guardado: number;
+  criadoEm: string;
+};
+
+export type Movimentacao = {
+  id: number;
+  cofrinhoId: number;
+  /** Positivo quando guarda, negativo quando retira. */
+  valor: number;
+  data: string;
+};
+
 // Rotas da navegação (Stack + Tabs + Modal).
 export type RotasPilha = {
   Login: undefined;
@@ -63,10 +81,13 @@ export type RotasPilha = {
   NovoGasto: undefined;
   /** aporteSugerido: sobra do orçamento do mês, para começar a simulação. */
   Simulador: { aporteSugerido?: number } | undefined;
+  NovoCofrinho: undefined;
+  DetalheCofrinho: { id: number };
 };
 
 export type RotasAbas = {
   Resumo: undefined;
   Gastos: undefined;
+  Cofrinhos: undefined;
   Metas: undefined;
 };
