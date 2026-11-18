@@ -1,5 +1,6 @@
 // Persistência dos cofrinhos com SQLite: uma tabela para os cofrinhos e outra
 // para as movimentações (quanto foi guardado ou retirado de cada um).
+// Cada movimentação guarda o id do lançamento que ela criou nos gastos do mês.
 import { Cofrinho, Movimentacao } from '../types';
 import { abrirBanco } from './banco';
 
@@ -16,6 +17,7 @@ type LinhaMovimentacao = {
   cofrinho_id: number;
   valor: number;
   data: string;
+  gasto_id: number | null;
 };
 
 // Cria as tabelas na primeira vez que o serviço é usado.
@@ -32,9 +34,16 @@ const pronto = (async () => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       cofrinho_id INTEGER NOT NULL,
       valor REAL NOT NULL,
-      data TEXT NOT NULL
+      data TEXT NOT NULL,
+      gasto_id INTEGER
     );
   `);
+
+  // Migração: aparelhos com a versão 1.1.0 já têm a tabela, mas sem a coluna gasto_id.
+  const colunas = await db.getAllAsync<{ name: string }>('PRAGMA table_info(movimentacoes)');
+  if (!colunas.some((c) => c.name === 'gasto_id')) {
+    await db.execAsync('ALTER TABLE movimentacoes ADD COLUMN gasto_id INTEGER;');
+  }
   return db;
 })();
 
@@ -67,56 +76,67 @@ export async function listarMovimentacoes(cofrinhoId: number): Promise<Movimenta
     'SELECT * FROM movimentacoes WHERE cofrinho_id = ? ORDER BY data DESC, id DESC',
     cofrinhoId,
   );
-  return linhas.map((l) => ({ id: l.id, cofrinhoId: l.cofrinho_id, valor: l.valor, data: l.data }));
+  return linhas.map((l) => ({
+    id: l.id,
+    cofrinhoId: l.cofrinho_id,
+    valor: l.valor,
+    data: l.data,
+    gastoId: l.gasto_id ?? null,
+  }));
 }
 
-/** Cria o cofrinho e, se houver valor inicial, já registra a primeira movimentação. */
-export async function criarCofrinho(nome: string, meta: number, valorInicial: number): Promise<number> {
+export async function criarCofrinho(nome: string, meta: number): Promise<number> {
   const db = await pronto;
-  const agora = new Date().toISOString();
-  let id = 0;
-  await db.withTransactionAsync(async () => {
-    const resultado = await db.runAsync(
-      'INSERT INTO cofrinhos (nome, meta, criado_em) VALUES (?, ?, ?)',
-      nome,
-      meta,
-      agora,
-    );
-    id = resultado.lastInsertRowId;
-    if (valorInicial > 0) {
-      await db.runAsync(
-        'INSERT INTO movimentacoes (cofrinho_id, valor, data) VALUES (?, ?, ?)',
-        id,
-        valorInicial,
-        agora,
-      );
-    }
-  });
-  return id;
+  const resultado = await db.runAsync(
+    'INSERT INTO cofrinhos (nome, meta, criado_em) VALUES (?, ?, ?)',
+    nome,
+    meta,
+    new Date().toISOString(),
+  );
+  return resultado.lastInsertRowId;
 }
 
-export async function adicionarMovimentacao(cofrinhoId: number, valor: number): Promise<void> {
+export async function adicionarMovimentacao(
+  cofrinhoId: number,
+  valor: number,
+  gastoId: number | null,
+): Promise<void> {
   const db = await pronto;
   await db.runAsync(
-    'INSERT INTO movimentacoes (cofrinho_id, valor, data) VALUES (?, ?, ?)',
+    'INSERT INTO movimentacoes (cofrinho_id, valor, data, gasto_id) VALUES (?, ?, ?, ?)',
     cofrinhoId,
     valor,
     new Date().toISOString(),
+    gastoId,
   );
 }
 
-export async function removerMovimentacao(id: number): Promise<void> {
+/** Apaga a movimentação e devolve o id do gasto ligado a ela (para apagar também). */
+export async function removerMovimentacao(id: number): Promise<number | null> {
   const db = await pronto;
+  const linha = await db.getFirstAsync<{ gasto_id: number | null }>(
+    'SELECT gasto_id FROM movimentacoes WHERE id = ?',
+    id,
+  );
   await db.runAsync('DELETE FROM movimentacoes WHERE id = ?', id);
+  return linha?.gasto_id ?? null;
 }
 
-/** Apaga o cofrinho e todas as movimentações dele de uma vez (transação). */
-export async function excluirCofrinho(id: number): Promise<void> {
+/**
+ * Apaga o cofrinho e todas as movimentações dele de uma vez (transação).
+ * Devolve os ids dos gastos ligados às movimentações, para apagar também.
+ */
+export async function excluirCofrinho(id: number): Promise<number[]> {
   const db = await pronto;
+  const ligados = await db.getAllAsync<{ gasto_id: number }>(
+    'SELECT gasto_id FROM movimentacoes WHERE cofrinho_id = ? AND gasto_id IS NOT NULL',
+    id,
+  );
   await db.withTransactionAsync(async () => {
     await db.runAsync('DELETE FROM movimentacoes WHERE cofrinho_id = ?', id);
     await db.runAsync('DELETE FROM cofrinhos WHERE id = ?', id);
   });
+  return ligados.map((l) => l.gasto_id);
 }
 
 export async function removerTodosOsCofrinhos(): Promise<void> {
