@@ -2,6 +2,12 @@
 
 Todas as mudanças de cada versão do BolsoCerto.
 
+## 1.2.0
+
+- **Cofrinhos ligados ao orçamento:** guardar dinheiro num cofrinho (ao criar com valor inicial ou pelo botão Guardar) lança o valor nos gastos do mês, na categoria Cofrinho. Retirar lança o valor negativo e devolve ao orçamento. Os lançamentos aparecem no histórico de gastos.
+- Apagar uma movimentação ou excluir um cofrinho apaga também os lançamentos ligados.
+- Lançamentos de cofrinho ficam só para leitura na tela de gastos.
+
 ## 1.1.0
 
 - **Simulador de investimento:** compara poupança, Tesouro Selic e CDB (100%, 110% ou 120% do CDI) com a taxa Selic atual, buscada na API do Banco Central. Considera o Imposto de Renda pela tabela regressiva e pode começar com a sobra do orçamento do mês.
