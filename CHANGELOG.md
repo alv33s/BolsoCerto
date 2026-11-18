@@ -2,6 +2,11 @@
 
 Todas as mudanças de cada versão do BolsoCerto.
 
+## 1.1.0
+
+- **Simulador de investimento:** compara poupança, Tesouro Selic e CDB (100%, 110% ou 120% do CDI) com a taxa Selic atual, buscada na API do Banco Central. Considera o Imposto de Renda pela tabela regressiva e pode começar com a sobra do orçamento do mês.
+- **Cofrinhos:** separe dinheiro para objetivos, com meta, depósitos, retiradas, histórico e aviso quando a meta é atingida.
+
 ## 1.0.4
 
 - Corrige a busca dupla da cotação ao abrir o app, que gastava uma requisição a mais e mostrava por um instante o aviso de sem conexão.
